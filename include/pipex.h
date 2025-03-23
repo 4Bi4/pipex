@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 18:18:16 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/18 19:42:14 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:12:36 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,26 @@
 # define YELLOW  "\x1b[93m"
 # define RESET   "\x1b[0m"
 
+
+// 	Auxiliary data struct
 typedef	struct s_struct
 {
-	char	*cmd1;
-	char	*cmd2;
+	char	**cmd1;
+	char	**cmd2;
 
-	int		ifd;
-	int		ofd;
+	int		in_fd;
+	int		out_fd;
 
 	char	**path;
 
 }	t_struct;
+
+//	Checker Functions
+int		check_args(char **args, t_struct *data);
+int		check_cmd(t_struct *data, char	**command);
+
+//	Auxiliary Functions
+void	free_matrix(char **mtrx);
+void	free_struct(t_struct *data);
 
 #endif

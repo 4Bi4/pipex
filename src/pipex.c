@@ -1,21 +1,24 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
+/*   a.c                                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/18 18:18:20 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/18 19:52:42 by labia-fe         ###   ########.fr       */
+/*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
+/*   Updated: 2025/03/19 18:05:45 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
 
+//	Function to get the "PATH" out of all the enviroment
 int	get_env(t_struct *data, char **envp)
 {
 	char	*path;
-	int 	i;
+	int		i;
+
 	data->path = NULL;
 	i = 0;
 	while (envp[i])
@@ -32,32 +35,18 @@ int	get_env(t_struct *data, char **envp)
 	return (0);
 }
 
-int	main(int ac, char **av, char **envp)
+int	main(int argc, char **argv, char **envp)
 {
-	if (ac < 2)
-		return(write(2, "sos boludo metéle algo al programa\n", 36), 1);
+	t_struct	*data;
+
+	if (argc != 5)
+		return (write(2, "usage: infile \"cmd 1\" \"cmd 2\" outfile\n", 38), 1);
 	else
 	{
-		(void)av;
-		t_struct *data = malloc(sizeof(t_struct));
+		data = malloc(sizeof(t_struct));
 		get_env(data, envp);
-		int test = 4;
-		char	*cmdpath;
-		for (int i = 0; data->path[i] && test != 0; i++)
-		{
-			cmdpath = ft_strjoin(data->path[i], "/cat");
-			test = access(cmdpath, F_OK);
-		}
-		char	*args[] = {"cat", "nice.txt", NULL};
-		execve(cmdpath, args, envp);
-		perror("perrow: (woof woof)");
-		// char *nice = (char *)malloc(sizeof(char) * (6000 + 1));
-		// int fd = open("nice.txt", O_RDONLY);
-		// read(fd, nice, 6000);
-		// sleep(2);
-		// printf(YELLOW "%s\n" RESET, nice);
-		// sleep(1);
-		// write(1, "\n                                                               👍\n", 69);
-		return (free(data), 0);
+		if (check_args(&argv[1], data) != 0)
+			return (free_struct(data), 1);
+		return (free_struct(data), 0);
 	}
 }
