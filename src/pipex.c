@@ -13,7 +13,9 @@
 
 #include "../include/pipex.h"
 
+
 //	Function to get the "PATH" out of all the enviroment
+//	RETURN VALUES = 0 if ok, 1 if error.
 int	get_env(t_struct *data, char **envp)
 {
 	char	*path;
@@ -35,6 +37,9 @@ int	get_env(t_struct *data, char **envp)
 	return (0);
 }
 
+
+//	Main Function (program starts here)
+//	RETURN VALUES = 0 if ok, 1 if error.
 int	main(int argc, char **argv, char **envp)
 {
 	t_struct	*data;
@@ -43,7 +48,9 @@ int	main(int argc, char **argv, char **envp)
 		return (write(2, "usage: infile \"cmd 1\" \"cmd 2\" outfile\n", 38), 1);
 	else
 	{
-		data = malloc(sizeof(t_struct));
+		data = ft_calloc(1, sizeof(t_struct));
+		if (!data)
+			return(write(2, "¡[ERROR]! Malloc error\n", 24), 1);
 		get_env(data, envp);
 		if (check_args(&argv[1], data) != 0)
 			return (free_struct(data), 1);

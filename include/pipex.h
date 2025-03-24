@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 18:18:16 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/23 17:12:36 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/03/24 17:35:58 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ typedef	struct s_struct
 
 //	Checker Functions
 int		check_args(char **args, t_struct *data);
-int		check_cmd(t_struct *data, char	**command);
+char	*check_cmd(t_struct *data, char	**command);
 
 //	Auxiliary Functions
 void	free_matrix(char **mtrx);
