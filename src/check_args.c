@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 18:17:09 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/26 19:46:16 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/03/27 00:13:42 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@ int	check_args(char **args, t_struct *data)
 {
 	char	*temp;
 	
-	if (access(args[0], F_OK) != 0 || access(args[0], R_OK) != 0)
-	{
-		write(2, "¡[ERROR]! Input File not found or bad permissions\n", 51);
-		return (1);
-	}
+	// if (access(args[0], F_OK) != 0 || access(args[0], R_OK) != 0)
+	// {
+	// 	write(2, "¡[ERROR]! Input File not found or bad permissions\n", 51);
+	// 	return (1);
+	// }
 	data->cmd1 = ft_split(args[1], ' ');
 	data->cmd2 = ft_split(args[2], ' ');
 	temp = data->cmd1[0];
@@ -52,14 +52,14 @@ char	*check_cmd(t_struct *data, char **command)
 		if (cmdpath)
 			free(cmdpath);
 		cmdpath = ft_strjoin(data->path[i], cmd);
-		ret = access(cmdpath, X_OK);
+		ret = access(cmdpath, F_OK);
 		i++;
 	}
 	free(cmd);
 	if (ret != 0)
 		return (perror("command not found"), free(cmdpath), NULL);
-	// if (access(cmdpath, X_OK) != 0)
-	// 	return (perror("can't execute file (permissions?)"), free(cmdpath), NULL);
+	if (access(cmdpath, X_OK) != 0)
+		return (perror("can't execute file (permissions?)"), free(cmdpath), NULL);
 	return (cmdpath);
 }
 
@@ -80,4 +80,3 @@ char	*check_cmd(t_struct *data, char **command)
 // 		exit(1);
 // 	}
 // }
-
