@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 18:17:09 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/24 18:36:42 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/03/26 19:46:16 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,10 +63,11 @@ char	*check_cmd(t_struct *data, char **command)
 	return (cmdpath);
 }
 
+//	PRUEBA DE FUNCION DE EXECVE
+//
 // int	execute_cmd(t_struct *data, char **envp)
 // {
 // 	int	pid;
-
 // 	pid = fork();
 // 	if (pid == 0)
 // 	{
@@ -78,5 +79,5 @@ char	*check_cmd(t_struct *data, char **command)
 // 		free_struct(data);
 // 		exit(1);
 // 	}
-	
 // }
+

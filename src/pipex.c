@@ -1,20 +1,18 @@
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   a.c                                                :+:      :+:    :+:   */
+/*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/19 18:05:45 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/03/26 19:54:56 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
 
-
-//	Function to get the "PATH" out of all the enviroment
+//	Function to get the "PATH" out of all the enviroment data
 //	RETURN VALUES = 0 if ok, 1 if error.
 int	get_env(t_struct *data, char **envp)
 {
@@ -36,7 +34,6 @@ int	get_env(t_struct *data, char **envp)
 		return (1);
 	return (0);
 }
-
 
 //	Main Function (program starts here)
 //	RETURN VALUES = 0 if ok, 1 if error.
