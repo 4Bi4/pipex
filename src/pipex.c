@@ -6,11 +6,20 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/27 00:04:56 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/03/27 19:28:38 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
+
+// if id = 0, 1st command. if id = 1, 2nd command
+// int	redirect_fd(t_struct *data, int id, int *pipx)
+// {
+// 	if (id == 0)
+// 	{
+// 		if (dup2(STDIN_FILENO, pip))
+// 	}
+// }
 
 //	if(!data->cmd2[0])
 //		vacia el outfile si existe y o crea uno vacio si no existe
@@ -18,7 +27,6 @@
 //		ejecuta el 2do comando sin input
 //	else
 //		haz todo
-
 void	master_mind(t_struct *data)
 {
 	int	pipx[2];
