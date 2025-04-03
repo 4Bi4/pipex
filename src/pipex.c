@@ -6,43 +6,93 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/27 19:28:38 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/04/02 20:21:25 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
 
-// if id = 0, 1st command. if id = 1, 2nd command
-// int	redirect_fd(t_struct *data, int id, int *pipx)
-// {
-// 	if (id == 0)
-// 	{
-// 		if (dup2(STDIN_FILENO, pip))
-// 	}
-// }
+//	Function that handles the 1st fork and the execution of the 1st cmd
+//	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
+int	first_exec(t_struct *data, int *pipx, char *cmdpath)
+{
+	pid_t	pid;
 
-//	if(!data->cmd2[0])
-//		vacia el outfile si existe y o crea uno vacio si no existe
-//	if(!data->cmd1[0])
-//		ejecuta el 2do comando sin input
-//	else
-//		haz todo
+	pid = fork();
+	if (pid < 0)
+		return (write(2, "Internal error, pls try again1\n", 31), -1);
+	if (pid == 0)
+	{
+		if (dup2(data->in_fd, STDIN_FILENO) == -1)
+			return (perror("dup2 error"), exit(1), -1);
+		close(data->in_fd);
+		if (dup2(pipx[1], STDOUT_FILENO) == -1)
+			return (perror("dup2 error"), exit(1), -1);
+		close(pipx[0]);
+		if (execve(cmdpath, data->cmd1, data->path) == -1)
+		{
+			perror("Internal error");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+		return (0);
+}
+
+//	Function that handles the 2nd fork and the execution of the 2nd cmd
+//	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
+int	second_exec(t_struct *data, int *pipx, char *cmdpath)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid < 0)
+		return (write(2, "Internal error, pls try again01\n", 32), -1);
+	if (pid == 0)
+	{
+		if (dup2(pipx[0], STDIN_FILENO) == -1)
+			return (perror("dup2 error"), exit(1), -1);
+		close(pipx[1]);
+		if (dup2(data->out_fd, STDOUT_FILENO) == -1)
+			return (perror("dup2 error"), exit(1), -1);
+		close(data->out_fd);
+		if (!execve(cmdpath, data->cmd2, data->path))
+		{
+			perror("Internal error 2");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+		return (0);
+}
+
+
+//	Function in charge of executing the steps in order and optimizing resources
+//	RETURN VALUES = void function does not return a value
 void	master_mind(t_struct *data)
 {
-	int	pipx[2];
-	
+	char	*path1;
+	char	*path2;
+	int		pipx[2];
+
+	path1 = check_cmd(data, data->cmd1);
+	path2 = check_cmd(data, data->cmd2);
+	printf("%s\n%s\n", path1, path2);
 	if (!data->cmd2[0])
 		return ;
 	if (!data->cmd1[0])
-			//	funcion de 2nd command sin input
-		return ;
+		second_exec(data, pipx, path2);
 	if (pipe(pipx) < 0)
 	{
 		perror("pipe error");
 		return ;
 	}
-		//	funcion de 1st command
-		//	funcion de 2nd command
+	else
+	{
+		first_exec(data, pipx, path1);
+		second_exec(data, pipx, path2);
+	}
+	return ;
 }
 
 //	Function to extract the "PATH" from all the enviroment data
