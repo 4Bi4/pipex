@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/04/02 20:21:25 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/04/04 20:16:37 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,17 +71,12 @@ int	second_exec(t_struct *data, int *pipx, char *cmdpath)
 //	RETURN VALUES = void function does not return a value
 void	master_mind(t_struct *data)
 {
-	char	*path1;
-	char	*path2;
 	int		pipx[2];
 
-	path1 = check_cmd(data, data->cmd1);
-	path2 = check_cmd(data, data->cmd2);
-	printf("%s\n%s\n", path1, path2);
 	if (!data->cmd2[0])
 		return ;
 	if (!data->cmd1[0])
-		second_exec(data, pipx, path2);
+		second_exec(data, pipx, data->cmd2[0]);
 	if (pipe(pipx) < 0)
 	{
 		perror("pipe error");
@@ -89,14 +84,14 @@ void	master_mind(t_struct *data)
 	}
 	else
 	{
-		first_exec(data, pipx, path1);
-		second_exec(data, pipx, path2);
+		first_exec(data, pipx, data->cmd1[0]);
+		second_exec(data, pipx, data->cmd2[0]);
 	}
 	return ;
 }
 
 //	Function to extract the "PATH" from all the enviroment data
-//	RETURN VALUES = 0 if ok, 1 if error.
+//	RETURN VALUES = 0 if ok, -1 if error.
 int	get_env(t_struct *data, char **envp)
 {
 	char	*path;
@@ -106,16 +101,18 @@ int	get_env(t_struct *data, char **envp)
 	i = 0;
 	while (envp[i])
 	{
-		path = ft_strnstr(envp[i], "PATH=", 6);
+		path = ft_strnstr(envp[i], "PATH=", 5);
 		if (path)
 			break ;
 		i++;
 	}
+	if (!path)
+		return (-1);
 	while (*path != '/')
 		path++;
 	data->path = ft_split(path, ':');
 	if (!data->path)
-		return (1);
+		return (-1);
 	return (0);
 }
 
@@ -132,7 +129,8 @@ int	main(int argc, char **argv, char **envp)
 		data = ft_calloc(1, sizeof(t_struct));
 		if (!data)
 			return (write(2, "¡[ERROR]! Malloc error\n", 24), 1);
-		get_env(data, envp);
+		if (get_env(data, envp) != 0)
+			return (free_struct(data), 1);
 		if (check_args(&argv[1], data) != 0)
 			return (free_struct(data), 1);
 		data->in_fd = open(argv[1], O_RDONLY);
