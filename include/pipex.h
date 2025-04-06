@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 18:18:16 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/03/27 19:05:17 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/04/06 20:31:52 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdlib.h>
+# include <sys/wait.h>
 # include <sys/types.h>
 # include "../src/libft/libft.h"
 

@@ -1,10 +1,10 @@
-CC			=	cc -I$(INCLUDE) -g3 -fsanitize=address  #-Wall -Wextra -Werror 
+CC			=	cc -I$(INCLUDE) -Wall -Wextra -Werror -g #-fsanitize=address
 
 NAME		=	pipex
 INCLUDE		=	include
 SRCDIR		=	src/
 OBJDIR		=	objs/
-SRCS		=	$(SRCDIR)pipex.c $(SRCDIR)check_args.c $(SRCDIR)utils_pipex.c
+SRCS		=	$(SRCDIR)pipex.c $(SRCDIR)utils_pipex.c
 OBJS		=	$(SRCS:$(SRCDIR)%.c=$(OBJDIR)%.o)
 
 LIBFT		=	src/libft/

@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/04/05 06:36:28 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/04/07 00:29:10 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,10 @@
 
 //	Function that handles the 1st fork and the execution of the 1st cmd
 //	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
-int	first_exec(t_struct *data, int *pipx, char *cmdpath)
+int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 {
-	pid_t	pid;
-
-	pid = fork();
 	if (pid < 0)
-		return (write(2, "Internal error, pls try again1\n", 31), -1);
+		return (perror("fork error"), exit(1), -1);
 	if (pid == 0)
 	{
 		if (dup2(data->in_fd, STDIN_FILENO) == -1)
@@ -30,24 +27,18 @@ int	first_exec(t_struct *data, int *pipx, char *cmdpath)
 			return (perror("dup2 error"), exit(1), -1);
 		close(pipx[0]);
 		if (execve(cmdpath, data->cmd1, data->path) == -1)
-		{
-			perror("Internal error");
-			exit(EXIT_FAILURE);
-		}
+			return (perror("Internal error"), exit(1), 1);
 	}
-	else
-		return (0);
+	waitpid(pid, 0, 0);
+	return (0);
 }
 
 //	Function that handles the 2nd fork and the execution of the 2nd cmd
 //	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
-int	second_exec(t_struct *data, int *pipx, char *cmdpath)
+int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 {
-	pid_t	pid;
-
-	pid = fork();
 	if (pid < 0)
-		return (write(2, "Internal error, pls try again01\n", 32), -1);
+		return (perror("fork error"), exit(1), -1);
 	if (pid == 0)
 	{
 		if (dup2(pipx[0], STDIN_FILENO) == -1)
@@ -57,41 +48,44 @@ int	second_exec(t_struct *data, int *pipx, char *cmdpath)
 			return (perror("dup2 error"), exit(1), -1);
 		close(data->out_fd);
 		if (!execve(cmdpath, data->cmd2, data->path))
-		{
-			perror("Internal error 2");
-			exit(EXIT_FAILURE);
-		}
+			return (perror("Internal error"), exit(1), 1);
 	}
-	else
-		return (0);
+	return (0);
 }
 
-
 //	Function in charge of executing the steps in order and optimizing resources
-//	RETURN VALUES = void function does not return a value
-void	master_mind(t_struct *data)
+//	RETURN VALUES = 0 if OK, -1 if error
+int	master_mind(t_struct *data)
 {
+	pid_t	pid;
+	pid_t	pid2;
 	int		pipx[2];
 
 	if (!data->cmd2[0])
-		return ;
+		return (1);
 	if (!data->cmd1[0])
-		second_exec(data, pipx, data->cmd2[0]);
-	if (pipe(pipx) < 0)
 	{
-		perror("pipe error");
-		return ;
+		pid = fork();
+		if (pid == 0)
+			second_exec(data, pipx, data->cmd2[0], pid);
 	}
+	if (pipe(pipx) < 0)
+		return (perror("pipe error"), exit(1), 1);
 	else
 	{
-		first_exec(data, pipx, data->cmd1[0]);
-		second_exec(data, pipx, data->cmd2[0]);
+		pid = fork();
+		if (pid == 0)
+			first_exec(data, pipx, data->cmd1[0], pid);
+		pid2 = fork();
+		if (pid2 == 0)
+			second_exec(data, pipx, data->cmd2[0], pid2);
 	}
-	return ;
+	waitpid(pid, 0, 0);
+	return (0);
 }
 
 //	Function to extract the "PATH" from all the enviroment data
-//	RETURN VALUES = 0 if ok, -1 if error.
+//	RETURN VALUES = 0 if ok, -1 if error
 int	get_env(t_struct *data, char **envp)
 {
 	char	*path;
@@ -117,7 +111,7 @@ int	get_env(t_struct *data, char **envp)
 }
 
 //	Main Function (program starts here)
-//	RETURN VALUES = 0 if ok, 1 if error.
+//	RETURN VALUES = 0 if ok, 1 if error
 int	main(int argc, char **argv, char **envp)
 {
 	t_struct	*data;
@@ -135,10 +129,10 @@ int	main(int argc, char **argv, char **envp)
 			return (free_struct(data), 1);
 		data->in_fd = open(argv[1], O_RDONLY);
 		if (data->in_fd < 0)
-			perror(argv[1]);
+			return (perror(argv[1]), free_struct(data), 1);
 		data->out_fd = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (data->out_fd < 0)
-			perror(argv[4]);
+			return (perror(argv[4]), free_struct(data), 1);
 		master_mind(data);
 		return (free_struct(data), 0);
 	}
