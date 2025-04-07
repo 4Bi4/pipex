@@ -37,6 +37,7 @@ typedef struct s_struct
 
 }	t_struct;
 
+int 	get_env(t_struct *data, char **envp);
 int		check_args(char **args, t_struct *data);
 char	*check_cmd(t_struct *data, char	**command);
 

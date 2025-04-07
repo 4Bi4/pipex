@@ -11,10 +11,11 @@
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
+#include <string.h>
 
 //	Function that handles the 1st fork and the execution of the 1st cmd
 //	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
-int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
+int first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 {
 	if (pid < 0)
 		return (perror("fork error"), exit(1), -1);
@@ -23,9 +24,11 @@ int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 		if (dup2(data->in_fd, STDIN_FILENO) == -1)
 			return (perror("dup2 error"), exit(1), -1);
 		close(data->in_fd);
+		close(data->out_fd);
 		if (dup2(pipx[1], STDOUT_FILENO) == -1)
 			return (perror("dup2 error"), exit(1), -1);
 		close(pipx[0]);
+		close(pipx[1]);
 		if (execve(cmdpath, data->cmd1, data->path) == -1)
 			return (perror("Internal error"), exit(1), 1);
 	}
@@ -35,7 +38,7 @@ int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 
 //	Function that handles the 2nd fork and the execution of the 2nd cmd
 //	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
-int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
+int second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 {
 	if (pid < 0)
 		return (perror("fork error"), exit(1), -1);
@@ -44,9 +47,11 @@ int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 		if (dup2(pipx[0], STDIN_FILENO) == -1)
 			return (perror("dup2 error"), exit(1), -1);
 		close(pipx[1]);
+		close(pipx[0]);
 		if (dup2(data->out_fd, STDOUT_FILENO) == -1)
 			return (perror("dup2 error"), exit(1), -1);
 		close(data->out_fd);
+		close(data->in_fd);
 		if (!execve(cmdpath, data->cmd2, data->path))
 			return (perror("Internal error"), exit(1), 1);
 	}
@@ -55,11 +60,11 @@ int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 
 //	Function in charge of executing the steps in order and optimizing resources
 //	RETURN VALUES = 0 if OK, -1 if error
-int	master_mind(t_struct *data)
+int master_mind(t_struct *data)
 {
-	pid_t	pid;
-	pid_t	pid2;
-	int		pipx[2];
+	pid_t pid;
+	pid_t pid2;
+	int pipx[2];
 
 	if (!data->cmd2[0])
 		return (1);
@@ -81,28 +86,29 @@ int	master_mind(t_struct *data)
 			second_exec(data, pipx, data->cmd2[0], pid2);
 	}
 	waitpid(pid, 0, 0);
+	close(pipx[0]);
+	close(pipx[1]);
+
 	return (0);
 }
 
 //	Function to extract the "PATH" from all the enviroment data
 //	RETURN VALUES = 0 if ok, -1 if error
-int	get_env(t_struct *data, char **envp)
+int get_env(t_struct *data, char **envp)
 {
-	char	*path;
-	int		i;
+	char *path;
+	int i;
 
-	if (!envp || !*envp)
-		return (-1);
-	data->path = NULL;
 	i = 0;
+
 	while (envp[i])
 	{
 		path = ft_strnstr(envp[i], "PATH=", 5);
 		if (path)
-			break ;
+			break;
 		i++;
 	}
-	if (!path)
+	if (!path || !*path)
 		return (-1);
 	while (*path != '/')
 		path++;
@@ -114,9 +120,9 @@ int	get_env(t_struct *data, char **envp)
 
 //	Main Function (program starts here)
 //	RETURN VALUES = 0 if ok, 1 if error
-int	main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char **envp)
 {
-	t_struct	*data;
+	t_struct *data;
 
 	if (argc != 5)
 		return (write(2, "usage: infile \"cmd 1\" \"cmd 2\" outfile\n", 38), 1);

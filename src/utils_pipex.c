@@ -46,8 +46,8 @@ void	free_struct(t_struct *data)
 		if (data->path)
 			free_matrix(data->path);
 		data->path = NULL;
-		data->in_fd = 0;
-		data->out_fd = 0;
+		close(data->in_fd);
+		close(data->out_fd); 
 		free(data);
 	}
 	return ;
@@ -89,7 +89,7 @@ char	*check_cmd(t_struct *data, char **command)
 	ret = -1;
 	cmdpath = NULL;
 	if (ft_strchr(command[0], '/'))
-		return (command[0]);
+		return (ft_strdup(command[0]));
 	cmd = ft_strjoin("/", command[0]);
 	while (data->path[i] && ret != 0)
 	{
