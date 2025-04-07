@@ -1,4 +1,4 @@
-CC			=	cc -I$(INCLUDE) -Wall -Wextra -Werror -g #-fsanitize=address
+CC			=	cc -I$(INCLUDE) -Wall -Wextra -Werror -g3 -fsanitize=address
 
 NAME		=	pipex
 INCLUDE		=	include

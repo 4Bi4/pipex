@@ -91,6 +91,8 @@ int	get_env(t_struct *data, char **envp)
 	char	*path;
 	int		i;
 
+	if (!envp || !*envp)
+		return (-1);
 	data->path = NULL;
 	i = 0;
 	while (envp[i])
