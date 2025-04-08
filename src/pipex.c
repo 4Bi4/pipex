@@ -16,8 +16,6 @@
 //	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
 int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 {
-	if (pid < 0)
-		return (perror("fork error"), exit(1), -1);
 	if (pid == 0)
 	{
 		if (dup2(data->in_fd, STDIN_FILENO) == -1)
@@ -29,7 +27,6 @@ int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 		if (execve(cmdpath, data->cmd1, data->path) == -1)
 			return (perror("Internal error"), exit(1), 1);
 	}
-	waitpid(pid, 0, 0);
 	return (0);
 }
 
@@ -37,8 +34,6 @@ int	first_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 //	RETURN VALUES = 0 if OK, -1 if error (the child process doesnt return)
 int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 {
-	if (pid < 0)
-		return (perror("fork error"), exit(1), -1);
 	if (pid == 0)
 	{
 		if (dup2(pipx[0], STDIN_FILENO) == -1)
@@ -57,31 +52,20 @@ int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 //	RETURN VALUES = 0 if OK, -1 if error
 int	master_mind(t_struct *data)
 {
-	pid_t	pid;
-	pid_t	pid2;
+	pid_t	pid[2];
 	int		pipx[2];
 
-	if (!data->cmd2[0])
-		return (1);
-	if (!data->cmd1[0])
-	{
-		pid = fork();
-		if (pid == 0)
-			second_exec(data, pipx, data->cmd2[0], pid);
-	}
 	if (pipe(pipx) < 0)
-		return (perror("pipe error"), exit(1), 1);
-	else
-	{
-		pid = fork();
-		if (pid == 0)
-			first_exec(data, pipx, data->cmd1[0], pid);
-		pid2 = fork();
-		if (pid2 == 0)
-			second_exec(data, pipx, data->cmd2[0], pid2);
-	}
-	waitpid(pid, 0, 0);
-	return (0);
+		return (perror("pipe error"), exit(1), -1);
+	pid[0] = fork();
+	if (pid[0] == 0)
+		first_exec(data, pipx, data->cmd1[0], pid[0]);
+	pid[1] = fork();
+	if (pid[1] == 0)
+		second_exec(data, pipx, data->cmd2[0], pid[1]);
+	close(pipx[1]);
+	close(pipx[0]);
+	return (waitpid(pid[0], NULL, 0), waitpid(pid[1], NULL, 0), 0);
 }
 
 //	Function to extract the "PATH" from all the enviroment data
@@ -125,8 +109,7 @@ int	main(int argc, char **argv, char **envp)
 		data = ft_calloc(1, sizeof(t_struct));
 		if (!data)
 			return (write(2, "¡[ERROR]! Malloc error\n", 24), 1);
-		if (get_env(data, envp) != 0)
-			return (free_struct(data), 1);
+		data->env_state = get_env(data, envp);
 		if (check_args(&argv[1], data) != 0)
 			return (free_struct(data), 1);
 		data->in_fd = open(argv[1], O_RDONLY);

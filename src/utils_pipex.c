@@ -63,16 +63,22 @@ int	check_args(char **args, t_struct *data)
 	data->cmd2 = ft_split(args[2], ' ');
 	if (!data->cmd1 || !*data->cmd1 || !data->cmd2 || !*data->cmd2)
 		return (write(2, "Wrong Commands or Malloc Error\n", 31), -1);
-	temp = check_cmd(data, data->cmd1);
-	if (!temp)
-		return (-1);
-	free(data->cmd1[0]);
-	data->cmd1[0] = temp;
-	temp = check_cmd(data, data->cmd2);
-	if (!temp)
-		return (-1);
-	free(data->cmd2[0]);
-	data->cmd2[0] = temp;
+	if (!ft_strchr(data->cmd1[0], '/') && data->env_state == 0)
+	{
+		temp = check_cmd(data, data->cmd1);
+		if (!temp)
+			return (-1);
+		free(data->cmd1[0]);
+		data->cmd1[0] = temp;
+	}
+	if (!ft_strchr(data->cmd2[0], '/') && data->env_state == 0)
+	{
+		temp = check_cmd(data, data->cmd2);
+		if (!temp)
+			return (-1);
+		free(data->cmd2[0]);
+		data->cmd2[0] = temp;
+	}
 	return (0);
 }
 
@@ -106,4 +112,3 @@ char	*check_cmd(t_struct *data, char **command)
 		return (perror("can't execute file"), free(cmdpath), NULL);
 	return (cmdpath);
 }
-	

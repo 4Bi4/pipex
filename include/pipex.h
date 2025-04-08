@@ -35,6 +35,8 @@ typedef struct s_struct
 
 	char	**path;
 
+	int		env_state;
+
 }	t_struct;
 
 int		check_args(char **args, t_struct *data);
