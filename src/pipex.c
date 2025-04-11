@@ -6,7 +6,7 @@
 /*   By: labia-fe <labia-fe@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 17:13:07 by labia-fe          #+#    #+#             */
-/*   Updated: 2025/04/07 00:29:10 by labia-fe         ###   ########.fr       */
+/*   Updated: 2025/04/11 11:23:39 by labia-fe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	second_exec(t_struct *data, int *pipx, char *cmdpath, pid_t pid)
 		if (dup2(data->out_fd, STDOUT_FILENO) == -1)
 			return (perror("dup2 error"), exit(1), -1);
 		close(data->out_fd);
-		if (!execve(cmdpath, data->cmd2, data->path))
+		if (execve(cmdpath, data->cmd2, data->path) == -1)
 			return (perror("Internal error"), exit(1), 1);
 	}
 	return (0);
